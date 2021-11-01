@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "61002221802",
+    "project_id": "photoposter-5e1e4",
+    "storage_bucket": "photoposter-5e1e4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:61002221802:android:c3a57ae767345c93f8ef93",
+        "android_client_info": {
+          "package_name": "ru.vsu.cs.poster.mobile_apps"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "61002221802-n7g2js6h8bvu3fvpdr54tjl5hv9mtcno.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADhnKX8MEn8Hpjz016GD3jQ3mcAEQ8jCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "61002221802-n7g2js6h8bvu3fvpdr54tjl5hv9mtcno.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
