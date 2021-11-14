@@ -16,14 +16,14 @@ class _HomeState extends State<Home> {
   List todoList = [];
 
   void initFirebase() async {
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
+    // WidgetsFlutterBinding.ensureInitialized();
+    // await Firebase.initializeApp();
   }
 
   @override
   void initState() {
     super.initState();
-    initFirebase();
+    // initFirebase();
     todoList.addAll(['Buy milk', 'Wash dishes']);
   }
 
@@ -111,7 +111,7 @@ class _HomeState extends State<Home> {
               ),
               actions: [
                 ElevatedButton(onPressed: () {
-                  FirebaseFirestore.instance.collection('items').add({'item': userTodo});
+                  // FirebaseFirestore.instance.collection('items').add({'item': userTodo});
                   // setState(() {
                   //   todoList.add(userTodo);
                   // });

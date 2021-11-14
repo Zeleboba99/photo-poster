@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_apps/pages/comments_screen/comments_screen.dart';
+import 'package:mobile_apps/pages/feed_screen/feed_screen.dart';
 import 'package:mobile_apps/pages/home.dart';
+import 'package:mobile_apps/pages/login_screen/login_screen.dart';
 import 'package:mobile_apps/pages/main_screen.dart';
+import 'package:mobile_apps/pages/new_post_add_description_screen/new_post_add_description_screen.dart';
+import 'package:mobile_apps/pages/new_post_choose_photo_sceen/new_post_choose_photo_screen.dart';
+import 'package:mobile_apps/pages/new_post_publish_screen/new_post_publish_screen.dart';
+import 'package:mobile_apps/pages/post_screen/post_screen.dart';
+import 'package:mobile_apps/pages/profile_screen/profile_screen.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -9,10 +17,18 @@ void main() {
       backgroundColor: Colors.amber
     ),
     // home: MainScreen(),
-    initialRoute: '/',
+    initialRoute: '/profile',
     routes: {
       '/': (context) => MainScreen(),
       '/todo': (context) => Home(),
+      '/feed': (context) => FeedScreen(),
+      '/login': (context) => LoginScreen(),
+      '/profile': (context) => ProfileScreen(),
+      '/new-post-choose-photo': (context) => NewPostChoosePhotoScreen(),
+      '/new-post-add-description': (context) => NewPostAddDescriptionScreen(),
+      '/new-post-publish': (context) => NewPostPublishScreen(),
+      '/post': (context) => PostScreen(),
+      '/comments': (context) => CommentsScreen(),
     },
   ));
 }
