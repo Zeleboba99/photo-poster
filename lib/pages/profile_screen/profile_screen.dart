@@ -1,11 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_event.dart';
 import 'package:mobile_apps/components/bottom_sheet_menu.dart';
 import 'package:mobile_apps/components/photo_grid.dart';
 import 'package:mobile_apps/components/navigation_bar.dart';
+import 'package:mobile_apps/services/user_repository.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late AuthenticationBloc _authenticationBloc;
+
+  @override
+  void didChangeDependencies() {
+    _authenticationBloc = BlocProvider.of<AuthenticationBloc>(context);
+
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +154,29 @@ class ProfileScreen extends StatelessWidget {
                                 ],
                               ),
                             ),),
-                          onTap: () {print("12345;");},
+                          onTap: () {
+                            print("12345;");
+                            _authenticationBloc.add(LoggedOut());
+
+                            Navigator.popUntil(context, (route) {
+                              print(route.settings.name);
+                              if (route.settings.name == '/') {
+                                print("eq");
+                                return true;
+                              }
+                              print("neq");
+                              return false;
+                            });
+
+                            // Navigator.of(context).pop();
+                            // print(Navigator.of(context).restorationId);
+                            // Navigator.of(context).pop();
+                            // print(Navigator.of(context).restorationId);
+
+                            // Navigator.of(context).popUntil(ModalRoute.withName("/login"));
+                            // Navigator.of(context).pushReplacementNamed('/login');
+                            // Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+                          },
                         ),
                         // ElevatedButton(
                         //     child: const Text('Close BottomSheet'),
@@ -158,8 +198,7 @@ class ProfileScreen extends StatelessWidget {
     // top: 10,
     child: Container(
       margin: EdgeInsets.only(top: 130),
-      child: PhotoGrid(),
+      child: PhotoGrid(null),
     ),
   );
-
 }

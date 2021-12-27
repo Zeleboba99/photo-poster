@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_apps/models/user.dart';
 
 class PostCard extends StatelessWidget {
-  const PostCard({Key? key}) : super(key: key);
+  final UserModel? user;
+  const PostCard({Key? key, this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,24 +13,33 @@ class PostCard extends StatelessWidget {
       margin: _bottomMargin,
       height: 400,
       // decoration: _boxDecoration,
-      child: Stack(
+      child: Column(
         children: [
-          Positioned(top: 0, child: _buildPostHeader()),
-          Positioned(top: 0, right: 5, child: _buildOptionsIcon()),
-          Positioned(
-            left: 5,
-            right: 5,
-            top: 20,
-            bottom: 20,
-            child: _buildImage(),
+          Container(
+              child: _buildPostHeader(context)
           ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(color: Colors.black.withOpacity(0.05)),
+          Expanded(
+            child: _buildImage(context),
+          ),
+          // Positioned.fill(
+          //   child: DecoratedBox(
+          //     decoration: BoxDecoration(color: Colors.black.withOpacity(0.05)),
+          //   ),
+          // ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                    child: _buildLikeIcon()
+                ),
+                Container(
+                    child: _buildCommentIcon(context)
+                ),
+              ],
             ),
-          ),
-          Positioned(left: 16, bottom: 0, child: _buildLikeIcon()),
-          Positioned(right: 16, bottom: 0, child: _buildCommentIcon()),
+          )
         ],
       ),
     );
@@ -49,10 +60,15 @@ class PostCard extends StatelessWidget {
     ),
   );
 
-  Widget _buildImage() => Container(
-    child: Image(
-      image: AssetImage('assets/montain.jpg'),
-    ),
+  Widget _buildImage(BuildContext context) => Container(
+    child: GestureDetector(
+      child: Image(
+        image: AssetImage('assets/montain.jpg'),
+      ),
+      onTap: () {
+        Navigator.pushNamed(context, '/post');
+      },
+    )
   );
 
   //     Hero(
@@ -77,21 +93,69 @@ class PostCard extends StatelessWidget {
     // ),
   );
 
-  Widget _buildCommentIcon() => Container(
+  Widget _buildCommentIcon(BuildContext context) => Container(
       padding: EdgeInsets.symmetric(
         vertical: 8,
       ),
-      child: Icon(Icons.comment_outlined, color: Colors.black87, size: 36,)
+      child: IconButton(
+        icon: Icon(Icons.comment_outlined, color: Colors.black87, size: 36,),
+        onPressed: () {
+          Navigator.pushNamed(context, '/comments');
+        },
+      )
   );
 
-  Widget _buildOptionsIcon() => Container(
+  Widget _buildOptionsIcon(BuildContext context) => Container(
                 padding: EdgeInsets.symmetric(
                   vertical: 8,
                 ),
-                child: IconButton(
+                child: PopupMenuButton(
                   icon: Icon(Icons.more_vert, color: Colors.black87, size: 36,),
-                  onPressed: () {
-                    print("qwer");
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        child: Text("Share post"),
+                        value: 1,
+                      ),
+                      PopupMenuItem(
+                        child: GestureDetector(child: Text("Delete post"),
+                          onTap: () => showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              title: const Text('Delete post?'),
+                              // content: const Text('AlertDialog description'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () => {},//Navigator.pop(context, 'Cancel'),
+                                  child: const Text('No'),
+                                ),
+                                TextButton(
+                                  onPressed: () => {},//Navigator.pop(context, 'OK'),
+                                  child: const Text('Yes'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        value: 2,
+                        // onTap: () => showDialog<String>(
+                        //   context: context,
+                        //   builder: (BuildContext context) => AlertDialog(
+                        //     title: const Text('AlertDialog Title'),
+                        //     content: const Text('AlertDialog description'),
+                        //     actions: <Widget>[
+                        //       // TextButton(
+                        //       //   onPressed: () => {},//Navigator.pop(context, 'Cancel'),
+                        //       //   child: const Text('Cancel'),
+                        //       // ),
+                        //       // TextButton(
+                        //       //   onPressed: () => {},//Navigator.pop(context, 'OK'),
+                        //       //   child: const Text('OK'),
+                        //       // ),
+                        //     ],
+                        //   ),
+                        // ),
+                      )
+                    ]
                     //todo
                     //   showDialog<String>(
                     //   context: context,
@@ -109,35 +173,44 @@ class PostCard extends StatelessWidget {
                     //       ),
                     //     ],
                     //   ),
-                    // );
-                  },
+
                 )
             );
 
 
-  Widget _buildPostHeader() => Container(
+  Widget _buildPostHeader(BuildContext context) => Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10 ,0),
       child: Row(
-        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 5,
-            ),
-            child: Icon(Icons.account_circle_outlined, color: Colors.black87, size: 36,),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: 5,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text("Name"),
-                Text("Date")
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+            child: Row(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 5,
+                  ),
+                  child: Icon(Icons.account_circle_outlined, color: Colors.black87, size: 36,),
+                ),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 5,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Nickname"/*user!.name*/),
+                      Text("Date")
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
+          _buildOptionsIcon(context)
         ],
       )
   );

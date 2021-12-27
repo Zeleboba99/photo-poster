@@ -1,7 +1,16 @@
+import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_bloc.dart';
+import 'package:mobile_apps/bloc/user_bloc.dart';
+import 'package:mobile_apps/new_post_bloc/new_post_state.dart';
 import 'package:mobile_apps/pages/comments_screen/comments_screen.dart';
 import 'package:mobile_apps/pages/feed_screen/feed_screen.dart';
 import 'package:mobile_apps/pages/home.dart';
+import 'package:mobile_apps/pages/login_screen/bloc/login_block.dart';
+import 'package:mobile_apps/pages/login_screen/bloc/register_bloc.dart';
 import 'package:mobile_apps/pages/login_screen/login_screen.dart';
 import 'package:mobile_apps/pages/main_screen.dart';
 import 'package:mobile_apps/pages/new_post_add_description_screen/new_post_add_description_screen.dart';
@@ -9,28 +18,135 @@ import 'package:mobile_apps/pages/new_post_choose_photo_sceen/new_post_choose_ph
 import 'package:mobile_apps/pages/new_post_publish_screen/new_post_publish_screen.dart';
 import 'package:mobile_apps/pages/post_screen/post_screen.dart';
 import 'package:mobile_apps/pages/profile_screen/profile_screen.dart';
+import 'package:mobile_apps/pages/splash_screen/splash_screen.dart';
+import 'package:mobile_apps/services/database.dart';
+import 'package:mobile_apps/services/user_repository.dart';
 
-void main() {
-  runApp(MaterialApp(
-    theme: ThemeData(
-      primaryColor: Colors.blue,
-      backgroundColor: Colors.amber
-    ),
-    // home: MainScreen(),
-    initialRoute: '/profile',
-    routes: {
-      '/': (context) => MainScreen(),
-      '/todo': (context) => Home(),
-      '/feed': (context) => FeedScreen(),
-      '/login': (context) => LoginScreen(),
-      '/profile': (context) => ProfileScreen(),
-      '/new-post-choose-photo': (context) => NewPostChoosePhotoScreen(),
-      '/new-post-add-description': (context) => NewPostAddDescriptionScreen(),
-      '/new-post-publish': (context) => NewPostPublishScreen(),
-      '/post': (context) => PostScreen(),
-      '/comments': (context) => CommentsScreen(),
-    },
-  ));
+import 'authentication_bloc/bloc.dart';
+import 'new_post_bloc/new_post_bloc.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(App());
+}
+
+class App extends StatefulWidget {
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  late UsersRepository _userRepository;
+  late AuthenticationBloc _authenticationBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    // _initializeFirebase();
+    _userRepository = UsersRepository();
+    _authenticationBloc = AuthenticationBloc(userRepository: _userRepository);
+    _authenticationBloc.add(AppStarted());
+  }
+
+  @override
+  void didChangeDependencies() {
+    debugPrint('didChangeDependencies called');
+    super.didChangeDependencies();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print("rebuild main");
+    Timer(Duration(seconds: 3), () {
+      print("Yeah, this line is printed after 3 seconds");
+    });
+    return MultiBlocProvider(
+        providers: [
+          BlocProvider<UserBloc>(
+            create: (BuildContext context) => UserBloc(usersRepository: _userRepository),
+          ),
+          BlocProvider<AuthenticationBloc>(
+            create: (BuildContext context) => _authenticationBloc,
+          ),
+          BlocProvider<LoginBloc>(
+            create: (BuildContext context) => LoginBloc(usersRepository: _userRepository),
+          ),
+          BlocProvider<RegisterBloc>(
+            create: (BuildContext context) => RegisterBloc(usersRepository: _userRepository),
+          ),
+          BlocProvider<NewPostBloc>(
+            create: (BuildContext context) => NewPostBloc(),
+          ),
+        ],
+        child: MaterialApp(
+            theme: ThemeData(
+                primaryColor: Colors.blue,
+                backgroundColor: Colors.amber
+            ),
+            // // home: MainScreen(),
+            // // initialRoute: '/splash',
+            routes: {
+              // '/': (context) => MainScreen(),
+              '/todo': (context) => Home(),
+              '/feed': (context) => FeedScreen(),
+              '/login': (context) => LoginScreen(),
+              '/profile': (context) => ProfileScreen(),
+              '/new-post-choose-photo': (context) => NewPostChoosePhotoScreen(),
+              '/new-post-add-description': (context) => NewPostAddDescriptionScreen(),
+              '/new-post-publish': (context) => NewPostPublishScreen(),
+              '/post': (context) => PostScreen(),
+              '/comments': (context) => CommentsScreen(),
+              '/splash': (context) => SplashScreen(),
+            },
+          home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+                bloc: _authenticationBloc,
+                builder: (context, state) {
+                  if (state is Uninitialized) {
+                    print("main pg Uninitialized");
+                    return SplashScreen();
+                  }
+                  if (state is Unauthenticated) {
+                    print("main pg Unauthenticated");
+                    return LoginScreen();
+                  }
+                  if (state is Authenticated) {
+                    print("main pg Authenticated");
+                    return FeedScreen();
+                  } else {
+                    print("main pg default");
+                    return Container(child: Text("qwerty"));
+                  }
+                  // return MaterialApp(
+                    /*theme: ThemeData(
+                      primaryColor: Colors.blue,
+                      backgroundColor: Colors.amber
+                  ),*/
+                    // home: MainScreen(),
+                    // initialRoute: '/splash',
+                    /*routes: {
+                    '/': (context) => MainScreen(),
+                    '/todo': (context) => Home(),
+                    '/feed': (context) => FeedScreen(),
+                    '/login': (context) => LoginScreen(),
+                    '/profile': (context) => ProfileScreen(),
+                    '/new-post-choose-photo': (context) => NewPostChoosePhotoScreen(),
+                    '/new-post-add-description': (context) => NewPostAddDescriptionScreen(),
+                    '/new-post-publish': (context) => NewPostPublishScreen(),
+                    '/post': (context) => PostScreen(),
+                    '/comments': (context) => CommentsScreen(),
+                    '/splash': (context) => SplashScreen(),
+                  },*/
+                  // );
+                })
+    ));
+  }
+
+  @override
+  void dispose() {
+    _authenticationBloc.close();
+    super.dispose();
+  }
 }
 
 

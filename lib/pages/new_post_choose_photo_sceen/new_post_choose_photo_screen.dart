@@ -1,39 +1,68 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_apps/components/navigation_bar.dart';
 import 'package:mobile_apps/components/photo_grid.dart';
+import 'package:mobile_apps/new_post_bloc/new_post_bloc.dart';
+import 'package:mobile_apps/new_post_bloc/new_post_state.dart';
 
-class NewPostChoosePhotoScreen extends StatelessWidget {
+class NewPostChoosePhotoScreen extends StatefulWidget {
   const NewPostChoosePhotoScreen({Key? key}) : super(key: key);
 
   @override
+  State<NewPostChoosePhotoScreen> createState() => _NewPostChoosePhotoScreenState();
+}
+
+class _NewPostChoosePhotoScreenState extends State<NewPostChoosePhotoScreen> {
+  late NewPostBloc _newPostBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    _newPostBloc = BlocProvider.of<NewPostBloc>(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            // height: 300,
-            // width: 410,
-            child: Expanded(
-              child: ListView(
-                  children: [
-                    _choosePhotoBuilder(context),
-                    // _orSeparatorBuilder(),
-                    _chooseFromGalleryBuilder(),
-                  ]
+    return BlocListener(
+        bloc: _newPostBloc,
+        listener: (BuildContext context, NewPostState state) {
+          if (state.isSuccess) {
+            Navigator.of(context).pushNamedAndRemoveUntil('/feed', (route) => false);
+          }
+        },
+        child: BlocBuilder(
+          bloc: _newPostBloc,
+          builder: (BuildContext context, NewPostState state) {
+            return Scaffold(
+              body: Column(
+                children: [
+                  Container(
+                    // height: 300,
+                    // width: 410,
+                      child: Expanded(
+                        child: ListView(
+                            children: [
+                              _choosePhotoBuilder(context),
+                              // _orSeparatorBuilder(),
+                              _chooseFromGalleryBuilder(),
+                            ]
+                        ),
+                      )
+                  ),
+                  // todo
+                  Container(
+                    // top: 300,// todo
+                    //   height: 350,
+                    //   width: 410,
+                      child: Container(child: SizedBox(height: 350,child:PhotoGrid(_newPostBloc)))
+                  )
+                ],
               ),
-            )
-          ),
-          // todo
-          Container(
-            // top: 300,// todo
-            //   height: 350,
-            //   width: 410,
-              child: Container(child: SizedBox(height: 350,child:PhotoGrid()))
-          )
-        ],
-      ),
-      bottomNavigationBar: const NavigationBar(),
+              bottomNavigationBar: const NavigationBar(),
+            );
+          },
+        ),
     );
   }
 
