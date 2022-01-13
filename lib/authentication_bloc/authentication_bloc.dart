@@ -1,8 +1,15 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:mobile_apps/models/user.dart';
+import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_block.dart';
+import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_event.dart';
+import 'package:mobile_apps/pages/profile_screen/bloc/profile_bloc.dart';
+import 'package:mobile_apps/pages/profile_screen/bloc/profile_event.dart';
 import 'package:mobile_apps/services/user_repository.dart';
 
+import '../main.dart';
 import 'authentication_event.dart';
 import 'authentication_state.dart';
 
@@ -34,8 +41,11 @@ class AuthenticationBloc
       final isSignedIn = await _userRepository.isSignedIn();
       print("isSignedIn " + isSignedIn.toString());
       if (isSignedIn) {
-        final name = await _userRepository.getUser();
-        yield Authenticated(name);
+        UserModel userModel = await _userRepository.getUser();
+        var profileBloc = BlocProvider.of<ProfileBloc>(navigatorKey.currentContext!);
+        profileBloc.add(ProfileInitialEvent(userUid: userModel.uid));
+
+        yield Authenticated(userModel);
         print("Authenticated");
       } else {
         yield Unauthenticated();
@@ -49,7 +59,12 @@ class AuthenticationBloc
   }
 
   Stream<AuthenticationState> _mapLoggedInToState() async* {
-    yield Authenticated(await _userRepository.getUser());
+    UserModel userModel = await _userRepository.getUser();
+    var profileBloc = BlocProvider.of<ProfileBloc>(navigatorKey.currentContext!);
+    profileBloc.add(ProfileInitialEvent(userUid: userModel.uid));
+    BlocProvider.of<FeedBloc>(navigatorKey.currentContext!).add(FeedLoadEvent(reloadAll: true));
+
+    yield Authenticated(userModel);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {

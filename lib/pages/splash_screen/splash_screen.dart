@@ -6,7 +6,7 @@ class SplashScreen extends StatelessWidget {
     print("SplashScreen builded");
     return const Scaffold(
       body: Image(
-        image: AssetImage('assets/montain.jpg'),
+        image: AssetImage('assets/splash.jpg'),
         fit: BoxFit.cover,
         height: double.infinity,
         width: double.infinity,

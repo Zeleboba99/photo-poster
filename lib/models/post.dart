@@ -1,26 +1,53 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:typed_data';
 
-enum LikeStatus{
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:mobile_apps/models/comment.dart';
+import 'package:mobile_apps/models/user.dart';
+
+enum LikeStatus {
   active,
   inactive,
 }
 
-class Post {
-  String id;
-  String name;
-  String date;
-  String imageUrl;
+class PostModel {
+  String uid;
+  String authorUid;
+  UserModel userModel;
+  String? description;
+  Timestamp createdAt;
+  ByteData? image;
+  String imageUrl = "";
   LikeStatus? likeStatus;
+  bool hasComments;
+  List<String>? likedBy = [];
 
-  Post({required this.id, required this.name, required this.date, required this.imageUrl, this.likeStatus});
+  List<CommentModel>? comments = [];
 
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
-      id: json['id'],
-      name: json['name'],
-      date: json['date'],
-      imageUrl: json['imageUrl'],
-      likeStatus: json['likeStatus'],
-    );
+  PostModel(
+      {required this.uid,
+      required this.authorUid,
+      required this.userModel,
+      this.description,
+      required this.createdAt,
+      required this.imageUrl,
+      this.image,
+      this.likeStatus,
+      this.likedBy,
+      required this.hasComments,
+      this.comments});
+
+  factory PostModel.empty() {
+    return PostModel(
+        uid: "",
+        authorUid: "",
+        userModel: UserModel(uid: "", nickname: "", email: ""),
+        createdAt: Timestamp.now(),
+        hasComments: false,
+        imageUrl: "");
+  }
+
+  @override
+  String toString() {
+    return 'PostModel{uid: $uid, authorUid: $authorUid, description: $description, createdAt: $createdAt, image: $image, imageUrl: $imageUrl, likeStatus: $likeStatus, likedBy: $likedBy, comments: $comments}';
   }
 }

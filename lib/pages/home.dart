@@ -61,44 +61,7 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
-      body: Text("1"),/*StreamBuilder(
-        stream: FirebaseFirestore.instance.collection('items').snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) {
-            return Text ('No data');
-          }
-          return ListView.builder(
-            itemCount: 3,//snapshot.data!.docs.length,
-            itemBuilder: (BuildContext ctx, int index) {
-              return Dismissible(
-                key: Key("1"/*snapshot.data!.docs[index].id*/),
-                child: Card(
-                  child: ListTile(
-                    title: Text("1"/*snapshot.data!.docs[index].get('item')*/),
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        color: Colors.blue,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          todoList.removeAt(index);
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                onDismissed: (direction) {
-                  // if (direction == DismissDirection.endToStart)\
-                  setState(() {
-                    todoList.removeAt(index);
-                  });
-                },
-              );
-            },
-          );
-        },
-      ),*/
+      body: Text("1"),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showDialog(context: context, builder: (BuildContext ctx) {
@@ -111,10 +74,6 @@ class _HomeState extends State<Home> {
               ),
               actions: [
                 ElevatedButton(onPressed: () {
-                  // FirebaseFirestore.instance.collection('items').add({'item': userTodo});
-                  // setState(() {
-                  //   todoList.add(userTodo);
-                  // });
                   Navigator.of(ctx).pop();
                 }, child: Text('Add!'))
               ],

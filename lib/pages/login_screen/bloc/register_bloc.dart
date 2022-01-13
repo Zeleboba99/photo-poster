@@ -39,9 +39,11 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     if (event is RegisterEmailChanged) {
       yield* _mapEmailChangedToState(event.email);
     } else if (event is RegisterPasswordChanged) {
-      yield* _mapPasswordChangedToState(event.password);
+      yield* _mapPasswordChangedToState(event.password);}
+    else if (event is RegisterNicknameChanged) {
+      yield* _mapNicknameChangedToState(event.nickname);
     } else if (event is RegisterSubmitted) {
-      yield* _mapFormSubmittedToState(event.email, event.password);
+      yield* _mapFormSubmittedToState(event.email, event.password, event.nickname);
     }
   }
 
@@ -49,6 +51,7 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     yield state.update(
       isEmailValid: Validators.isValidEmail(email),
       isPasswordValid: state.isPasswordValid,
+      isNicknameValid: state.isNicknameValid,
     );
   }
 
@@ -56,19 +59,27 @@ class RegisterBloc extends Bloc<RegisterEvent, RegisterState> {
     yield state.update(
       isEmailValid: state.isEmailValid,
       isPasswordValid: Validators.isValidPassword(password),
+      isNicknameValid: state.isNicknameValid,
+    );
+  }
+
+  Stream<RegisterState> _mapNicknameChangedToState(String nickname) async* {
+    yield state.update(
+      isEmailValid: state.isEmailValid,
+      isPasswordValid: state.isPasswordValid,
+      isNicknameValid: Validators.isValidPassword(nickname),
     );
   }
 
   Stream<RegisterState> _mapFormSubmittedToState(
       String email,
       String password,
+      String nickname
       ) async* {
     yield RegisterState.loading();
     try {
-      _usersRepository.signUp(email, password).then((value) => print(value));
-      _usersRepository.signInWithCredentials(email, password).then((value) => print("signed in"));
-      _usersRepository.getFirebaseUser().then((value) => print(value.email));
-      _usersRepository.isSignedIn().then((value) => print(value));
+      _usersRepository.signUp(email, password, nickname);
+      await _usersRepository.signInWithCredentials(email, password).then((value) => print("signed in"));
       yield RegisterState.success();
     } catch (_) {
       yield RegisterState.failure();

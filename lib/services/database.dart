@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_apps/models/post.dart';
+import 'package:mobile_apps/models/user.dart';
 import 'package:uuid/uuid.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -18,17 +19,13 @@ class Database {
     required String nickname,
     required String email,
   }) async {
-    // DocumentReference documentReferencer =
-    // _mainCollection.doc(userUid).collection('email').doc();
     DocumentReference documentReferencer =
-    // _mainCollection.doc(userUid);
     _userCollection.doc("12345");
 
     Map<String, dynamic> data = <String, dynamic>{
       "nickname": nickname,
       "email": email,
     };
-
 
     final Directory systemTempDir = Directory.systemTemp;                           // getting tempory directory
 
@@ -91,17 +88,26 @@ class Database {
     });
   }
 
-  static Future<Post> getPostByUid({
+  static Future<PostModel> getPostByUid({
     required String postUid
   }) async {
     // postUid = "07tB8xx24CSt3WJRY9FP";
     var snapshot = await _postCollection.doc(postUid).get();
     var data = snapshot.data();
     String authorUid = data['authorUid'];
-    String date = data['date'];
+    Timestamp date = data['date'];
     String description = data['description'];
     String url = data['url'];
-    Post post = Post(id: postUid, name: description, date: date, imageUrl: url, likeStatus: LikeStatus.inactive);
+    PostModel post = PostModel(
+        uid: postUid,
+        description: description,
+        createdAt: date,
+        imageUrl: url,
+        likeStatus: LikeStatus.inactive,
+        authorUid: authorUid,
+        hasComments: false,
+        userModel: UserModel(uid: "", email: "", nickname: ""),
+    );
     return post;
   }
 
@@ -118,7 +124,7 @@ class Database {
   // }
 
   static Future<ByteData> getDummyImage() {
-    return rootBundle.load("assets/splash.jpg"); // loading image using rootBundle
+    return rootBundle.load("assets/splash.jpg"); // splash loading image using rootBundle
   }
 
   // Future<Post> convertToPost(Future<DocumentSnapshot> snapshot) async {

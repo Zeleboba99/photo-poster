@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_apps/authentication_bloc/authentication_bloc.dart';
 import 'package:mobile_apps/authentication_bloc/authentication_event.dart';
+import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_block.dart';
+import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_event.dart';
 import 'package:mobile_apps/services/user_repository.dart';
 
 import 'bloc/login_block.dart';
@@ -31,18 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordLoginController = TextEditingController();
   final TextEditingController _emailRegisterController = TextEditingController();
   final TextEditingController _passwordRegisterController = TextEditingController();
-
-  UsersRepository get _usersRepository => widget._usersRepository;
+  final TextEditingController _nicknameRegisterController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-
-    // print("sgnup");
-    // FirebaseAuth.instance.createUserWithEmailAndPassword(
-    //   email: "qwerty123@gmail.com",
-    //   password: "qwerty12345",
-    // ).then((value) => { print(value)});
 
     _loginBloc = BlocProvider.of<LoginBloc>(context);
     _registerBloc = BlocProvider.of<RegisterBloc>(context);
@@ -50,6 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordLoginController.addListener(_onPasswordEmailChanged);
     _emailRegisterController.addListener(_onRegisterEmailChanged);
     _passwordRegisterController.addListener(_onRegisterPasswordChanged);
+    _nicknameRegisterController.addListener(_onRegisterNicknameChanged);
   }
 
   void _onLoginEmailChanged() {
@@ -85,11 +81,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _onRegisterNicknameChanged() {
+    _registerBloc.add(
+      RegisterNicknameChanged(nickname: _nicknameRegisterController.text),
+    );
+  }
+
   void _onRegisterFormSubmitted() {
     _registerBloc.add(
       RegisterSubmitted(
         email: _emailRegisterController.text,
         password: _passwordRegisterController.text,
+        nickname: _nicknameRegisterController.text
       ),
     );
   }
@@ -102,7 +105,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool get isRegisterPopulated =>
-      _emailRegisterController.text.isNotEmpty && _passwordRegisterController.text.isNotEmpty;
+      _emailRegisterController.text.isNotEmpty
+          && _passwordRegisterController.text.isNotEmpty
+          && _nicknameRegisterController.text.isNotEmpty;
 
   bool isRegisterButtonEnabled(RegisterState state) {
     return state.isFormValid && isRegisterPopulated && !state.isSubmitting;
@@ -119,23 +124,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   _signInBuilder(),
                   _orSeparatorBuilder(),
-                  // Divider(color: Colors.black54, thickness: 1,),
                   _signUpBuilder()
                 ]
             )),
-          // body: _showImagesBuilder()
-      // Column(
-      //   children: [
-      //     Text('Main scr'),
-      //     ElevatedButton(onPressed: () {
-      //       // Navigator.pushNamed(context, '/todo');
-      //       // Navigator.pushNamedAndRemoveUntil(context, '/todo', (route) => false);
-      //       Navigator.pushReplacementNamed(context, '/');
-      //     }, child: Text('Home')),
-      //   ],
-      // ),
-      //   _showImagesBuilder()
-
     );
   }
 
@@ -181,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (state.isSuccess) {
 
         BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
-        // Navigator.of(context).pushReplacementNamed('/feed');
+        Navigator.of(context).pushReplacementNamed('/feed');
       }
     },
 
@@ -240,9 +231,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: SizedBox(
                     width: double.infinity, // <-- match_parent
                     child: ElevatedButton(
-                      onPressed: isLoginButtonEnabled(state)
-                          ? _onLoginFormSubmitted
-                          : null,
+                      onPressed: () {
+                        if (isLoginButtonEnabled(state)) {
+                          FocusScope.of(context).unfocus();
+                          _onLoginFormSubmitted();
+                        }
+                      },
                       child: Text("SIGN IN"), style: ElevatedButton.styleFrom(
                         primary: Colors.black87,
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -278,7 +272,8 @@ class _LoginScreenState extends State<LoginScreen> {
         }
         if (state.isSuccess) {
           BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
-          // Navigator.of(context).pushReplacementNamed('/feed');
+          BlocProvider.of<FeedBloc>(context).add(FeedLoadEvent(reloadAll: true));
+          Navigator.of(context).pushReplacementNamed('/feed');
         }
         if (state.isFailure) {
           Scaffold.of(context)
@@ -316,12 +311,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           )))),
               Container(
                   margin: const EdgeInsets.only(top: 30),
-                  child: const TextField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Enter nickname",
-                        // helperText: "Логин используется для входа в систему",
-                      ))),
+                  child: TextFormField(
+                    controller: _nicknameRegisterController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Enter nickname",
+                    ),
+                    autocorrect: false,
+                    autovalidate: true,
+                    validator: (_) {
+                      return !state.isNicknameValid ? 'Invalid Nickname' : null;
+                    },
+                  )),
               Container(
                   margin: const EdgeInsets.only(top: 15),
                   child: TextFormField(
@@ -329,7 +330,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Enter email",
-                      // helperText: "Логин используется для входа в систему",
                     ),
                     autocorrect: false,
                     autovalidate: true,
@@ -344,7 +344,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Enter password",
-                      // helperText: "Логин используется для входа в систему",
                     ),
                     obscureText: true,
                     autocorrect: false,
@@ -354,18 +353,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   )),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 20),
-                child: SizedBox(
-                    width: double.infinity, // <-- match_parent
-                    child: ElevatedButton(
-                      onPressed: isRegisterButtonEnabled(state)
-                          ? _onRegisterFormSubmitted
-                          : null,
-                      child: Text("SIGN UP"), style: ElevatedButton.styleFrom(
-                        primary: Colors.black87,
+                    margin: const EdgeInsets.symmetric(vertical: 20),
+                    child: SizedBox(
+                        width: double.infinity, // <-- match_parent
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (isRegisterButtonEnabled(state)) {
+                              FocusScope.of(context).unfocus();
+                              _onRegisterFormSubmitted();
+                            }
+                          },
+                          child: Text("SIGN UP"),
+                          style: ElevatedButton.styleFrom(
+                              primary: Colors.black87,
                         padding: const EdgeInsets.symmetric(vertical: 15),
                         textStyle: const TextStyle(
-                          // fontSize: 3,
                             fontWeight: FontWeight.bold)),)
                 ),
               )

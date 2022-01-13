@@ -4,15 +4,17 @@ import 'package:meta/meta.dart';
 class RegisterState {
   final bool isEmailValid;
   final bool isPasswordValid;
+  final bool isNicknameValid;
   final bool isSubmitting;
   final bool isSuccess;
   final bool isFailure;
 
-  bool get isFormValid => isEmailValid && isPasswordValid;
+  bool get isFormValid => isEmailValid && isPasswordValid && isNicknameValid;
 
   RegisterState({
     required this.isEmailValid,
     required this.isPasswordValid,
+    required this.isNicknameValid,
     required this.isSubmitting,
     required this.isSuccess,
     required this.isFailure,
@@ -22,6 +24,7 @@ class RegisterState {
     return RegisterState(
       isEmailValid: true,
       isPasswordValid: true,
+      isNicknameValid: true,
       isSubmitting: false,
       isSuccess: false,
       isFailure: false,
@@ -32,6 +35,7 @@ class RegisterState {
     return RegisterState(
       isEmailValid: true,
       isPasswordValid: true,
+      isNicknameValid: true,
       isSubmitting: true,
       isSuccess: false,
       isFailure: false,
@@ -42,6 +46,7 @@ class RegisterState {
     return RegisterState(
       isEmailValid: true,
       isPasswordValid: true,
+      isNicknameValid: true,
       isSubmitting: false,
       isSuccess: false,
       isFailure: true,
@@ -52,6 +57,7 @@ class RegisterState {
     return RegisterState(
       isEmailValid: true,
       isPasswordValid: true,
+      isNicknameValid: true,
       isSubmitting: false,
       isSuccess: true,
       isFailure: false,
@@ -61,10 +67,12 @@ class RegisterState {
   RegisterState update({
     required bool isEmailValid,
     required bool isPasswordValid,
+    required bool isNicknameValid,
   }) {
     return copyWith(
       isEmailValid: isEmailValid,
       isPasswordValid: isPasswordValid,
+      isNicknameValid: isNicknameValid,
       isSubmitting: false,
       isSuccess: false,
       isFailure: false,
@@ -74,6 +82,7 @@ class RegisterState {
   RegisterState copyWith({
     required bool isEmailValid,
     required bool isPasswordValid,
+    required bool isNicknameValid,
     required bool isSubmitting,
     required bool isSuccess,
     required bool isFailure,
@@ -81,6 +90,7 @@ class RegisterState {
     return RegisterState(
       isEmailValid: isEmailValid,
       isPasswordValid: isPasswordValid,
+      isNicknameValid: isNicknameValid,
       isSubmitting: isSubmitting,
       isSuccess: isSuccess,
       isFailure: isFailure,
@@ -92,6 +102,7 @@ class RegisterState {
     return '''RegisterState {
       isEmailValid: $isEmailValid,
       isPasswordValid: $isPasswordValid,
+      isNicknameValid: $isNicknameValid,
       isSubmitting: $isSubmitting,
       isSuccess: $isSuccess,
       isFailure: $isFailure,
