@@ -8,4 +8,5 @@ Flutter проект для курса "Мобильная разработка"
 Photo poster - это приложение для публикации и просмотра фото.
 
 ## Демо видео проекта
-- [https://www.youtube.com/watch?v=1jOThBtkToY](https://www.youtube.com/watch?v=1jOThBtkToY)
+- [view on YouTube](https://www.youtube.com/watch?v=1jOThBtkToY)
+- [download from git](https://github.com/Zeleboba99/photo-poster/blob/master/demo_Elfimova.mp4)
