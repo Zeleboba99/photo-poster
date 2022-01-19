@@ -38,6 +38,7 @@ class PostCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print("rebuild PostCard");
+    print(post!.likedBy);
     return Container(
       color: Colors.white,
       height: 400,
@@ -102,33 +103,40 @@ class PostCard extends StatelessWidget {
         },
       ));
 
-  Widget _buildLikeIcon(BuildContext context) => Container(
-      padding: EdgeInsets.symmetric(
-        vertical: 8,
-      ),
-      child: IconButton(
-        icon: Icon(
-          post!.likeStatus == LikeStatus.inactive
-              ? Icons.favorite_border_outlined
-              : Icons.favorite,
-          color: post!.likeStatus == LikeStatus.inactive
-              ? Colors.black87
-              : Colors.redAccent,
-          size: 36,
+  Widget _buildLikeIcon(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+            padding: EdgeInsets.symmetric(
+              vertical: 8,
+            ),
+            child: IconButton(
+              icon: Icon(
+                post!.likeStatus == LikeStatus.inactive
+                    ? Icons.favorite_border_outlined
+                    : Icons.favorite,
+                color: post!.likeStatus == LikeStatus.inactive
+                    ? Colors.black87
+                    : Colors.redAccent,
+                size: 36,
+              ),
+              onPressed: () {
+                print("on like tap from post card isFullPostView = " +
+                    isFullPostView.toString());
+                if (isFullPostView) {
+                  postScreenBloc!
+                      .add(PostScreenChangeLikeStatusEvent(postModel: post!));
+                } else {
+                  LikeStatus newLikeStatus = post!.likeStatus == LikeStatus.inactive ? LikeStatus.active : LikeStatus.inactive;
+                  feedBloc!.add(FeedChangeLikeStatusEvent(postModel: post!, likeStatus: newLikeStatus));
+                }
+              },
+            )
         ),
-        onPressed: () {
-          print("on like tap from post card isFullPostView = " +
-              isFullPostView.toString());
-          if (isFullPostView) {
-            postScreenBloc!
-                .add(PostScreenChangeLikeStatusEvent(postModel: post!));
-          } else {
-            LikeStatus newLikeStatus = post!.likeStatus == LikeStatus.inactive ? LikeStatus.active : LikeStatus.inactive;
-            feedBloc!.add(FeedChangeLikeStatusEvent(postModel: post!, likeStatus: newLikeStatus));
-          }
-        },
-      )
-      );
+        Text(post!.likedBy!.length.toString())
+      ],
+    );
+  }
 
   Widget _buildCommentIcon(BuildContext context) => Container(
       padding: EdgeInsets.symmetric(
@@ -137,8 +145,8 @@ class PostCard extends StatelessWidget {
       child: IconButton(
         icon: Icon(
           post!.hasComments == true
-              ? Icons.comment
-              : Icons.comment_outlined,
+              ? Icons.mode_comment
+              : Icons.mode_comment_outlined,
           color: Colors.black87,
           size: 36,
         ),
@@ -161,17 +169,17 @@ class PostCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       },
     ));
-    popupMenuItems.add(PopupMenuItem(
-      child: Text("Share post"),
-      value: 1,
-      onTap: () {
-        final snackBar = SnackBar(
-          content: const Text('Copied'),
-        );
-
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      },
-    ));
+    // popupMenuItems.add(PopupMenuItem(
+    //   child: Text("Share post"),
+    //   value: 1,
+    //   onTap: () {
+    //     final snackBar = SnackBar(
+    //       content: const Text('Copied'),
+    //     );
+    //
+    //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //   },
+    // ));
     if (isFullPostView == true) {
       popupMenuItems.add(PopupMenuItem(
         child: GestureDetector(

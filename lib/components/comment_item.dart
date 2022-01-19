@@ -41,7 +41,7 @@ class CommentItem extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        width: 220,
+                        width: 210,
                         margin: EdgeInsets.only(left: 15),
                         child: Text(
                           commentModel.text,

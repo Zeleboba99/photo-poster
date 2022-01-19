@@ -42,7 +42,7 @@ Future<void> main() async {
   await Firebase.initializeApp();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   initScreen = await prefs.getInt("initScreen");
-  await prefs.setInt("initScreen", 1);
+  await prefs.setInt("initScreen", 1);//1
   print('initScreen ${initScreen}');
   runApp(App());
 }

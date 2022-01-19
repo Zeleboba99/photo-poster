@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_state.dart';
 import 'package:mobile_apps/models/comment.dart';
 import 'package:mobile_apps/models/post.dart';
 import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_block.dart';
@@ -39,26 +41,39 @@ class PostScreenBloc extends Bloc<PostScreenEvent, PostScreenState> {
 
       LikeStatus oldLikeStatus = event.postModel.likeStatus!;
       LikeStatus newLikeStatus = oldLikeStatus == LikeStatus.inactive ? LikeStatus.active : LikeStatus.inactive;
-      BlocProvider.of<FeedBloc>(navigatorKey.currentState!.context).add(
-          FeedChangeLikeStatusEvent(postModel: event.postModel, likeStatus: newLikeStatus)
-      );
+      // BlocProvider.of<FeedBloc>(navigatorKey.currentState!.context).add(
+      //     FeedChangeLikeStatusEvent(postModel: event.postModel, likeStatus: newLikeStatus));
       PostModel postModel = event.postModel;
       postModel.likeStatus = newLikeStatus;
+      var currentUserUid =
+          (BlocProvider.of<AuthenticationBloc>(navigatorKey.currentContext!).state as Authenticated).userModel.uid;
+      if (newLikeStatus == LikeStatus.active &&
+          !postModel.likedBy!.any((element) => element == currentUserUid)) {
+        postModel.likedBy!.add(currentUserUid);
+      } else {
+        postModel.likedBy!.remove(currentUserUid);
+        print(postModel.likedBy);
+        print(postModel);
+      }
       yield PostScreenShowPostState(postModel: postModel, commentModels: previewComments);
+      BlocProvider.of<FeedBloc>(navigatorKey.currentState!.context).add(
+          FeedChangeLikeStatusEvent(postModel: event.postModel, likeStatus: newLikeStatus));
     } else if (event is PostScreenRemovePostEvent) {
       _postRepository.removePost(event.postModel.uid);
       FeedShowPostsState feedState = (BlocProvider.of<FeedBloc>(navigatorKey.currentState!.context).state as FeedShowPostsState);
-      List<PostModel> adjustedPosts = feedState.loadedPosts;
-      print(adjustedPosts.length);
+      List<PostModel> adjustedFeedPosts = feedState.loadedPosts;
+      print(adjustedFeedPosts.length);
 
-      adjustedPosts.removeWhere((element) => element.uid == event.postModel.uid);
+      adjustedFeedPosts.removeWhere((element) => element.uid == event.postModel.uid);
 
-      BlocProvider.of<FeedBloc>(navigatorKey.currentContext).add(FeedAdjustPostsEvent(adjustedPosts: adjustedPosts));
-      print(adjustedPosts.length);
+      BlocProvider.of<FeedBloc>(navigatorKey.currentContext).add(FeedAdjustPostsEvent(adjustedPosts: adjustedFeedPosts));
+      print(adjustedFeedPosts.length);
 
       if (BlocProvider.of<ProfileBloc>(navigatorKey.currentState!.context).state is ProfileShowPostsState) {
         ProfileShowPostsState profileShowPostsState = (BlocProvider.of<ProfileBloc>(navigatorKey.currentState!.context).state as ProfileShowPostsState);
-        BlocProvider.of<ProfileBloc>(navigatorKey.currentState!.context).add(ProfileAdjustPostsEvent(adjustedPosts: adjustedPosts, userModel: profileShowPostsState.loadedUser));
+        List<PostModel> adjustedProfilePosts = profileShowPostsState.loadedPosts;
+        adjustedProfilePosts.removeWhere((element) => element.uid == event.postModel.uid);
+        BlocProvider.of<ProfileBloc>(navigatorKey.currentState!.context).add(ProfileAdjustPostsEvent(adjustedPosts: adjustedProfilePosts, userModel: profileShowPostsState.loadedUser));
       }
 
     } else {

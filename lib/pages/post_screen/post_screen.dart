@@ -65,6 +65,7 @@ class _PostScreenState extends State<PostScreen> {
   Widget _postBuilder() {
     if (_postScreenBloc.state is PostScreenShowPostState) {
       postModel = (_postScreenBloc.state as PostScreenShowPostState).postModel;
+      print(postModel.toString());
       return PostCard(
         isFullPostView: true,
         post: postModel,

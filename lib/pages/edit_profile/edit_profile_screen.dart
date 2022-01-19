@@ -1,6 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile_apps/authentication_bloc/authentication_bloc.dart';
 import 'package:mobile_apps/authentication_bloc/authentication_event.dart';
 import 'package:mobile_apps/components/navigation_bar.dart';
@@ -8,6 +11,7 @@ import 'package:mobile_apps/pages/edit_profile/bloc/edit_profile_event.dart';
 import 'package:mobile_apps/pages/post_screen/bloc/post_screen_bloc.dart';
 import 'package:mobile_apps/pages/profile_screen/bloc/profile_bloc.dart';
 import 'package:mobile_apps/services/database.dart';
+import 'package:mobile_apps/services/image_picker_provider.dart';
 
 import 'bloc/edit_profile_bloc.dart';
 import 'bloc/edit_profile_state.dart';
@@ -128,8 +132,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                     Expanded(
                         child: OutlinedButton(
-                          onPressed: () {
-                            _onChoosePhoto();
+                          onPressed: () async {
+                            PickedFile pickedImage = await ImagePickerProvider.getImageFromGallery(context);
+                            validateAndNewImage(pickedImage);
+                            // _onChoosePhoto();
                           },
                           child: Text('CHOOSE ANOTHER PHOTO'),
                           style: OutlinedButton.styleFrom(
@@ -185,6 +191,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   void _onNicknameChanged() {
     _editProfileBloc.add(EditProfileChangeNicknameEvent(nickname: _nicknameController.text));
+  }
+
+  validateAndNewImage(PickedFile pickedImage) async {
+    ByteData byteData = ByteData.sublistView(await pickedImage.readAsBytes());
+    _editProfileBloc.add(EditProfileChangeAvatarEvent(avatarImage: byteData));
+
   }
 
   void _onChoosePhoto() async {

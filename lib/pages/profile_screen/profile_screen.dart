@@ -96,10 +96,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 5,
-                  ),
-                  child: const Icon(Icons.account_circle_outlined, color: Colors.black87, size: 50,),
-                ),
-                Container(
+                      ),
+                      child:
+                          (state as ProfileShowPostsState).loadedUser.avatar! != null
+                              ? CircleAvatar(
+                                  backgroundImage: Image.memory((state).loadedUser.avatar!.buffer
+                                          .asUint8List())
+                                      .image,
+                                  radius: 28,
+                                )
+                              : const Icon(
+                                  Icons.account_circle_outlined,
+                                  color: Colors.black87,
+                                  size: 50,
+                                ),
+                    ),
+                    Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 5,
                   ),

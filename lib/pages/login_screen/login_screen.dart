@@ -172,7 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
       if (state.isSuccess) {
 
         BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
-        Navigator.of(context).pushReplacementNamed('/feed');
+        // Navigator.of(context).pushReplacementNamed('/feed');
+
       }
     },
 
@@ -273,7 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (state.isSuccess) {
           BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn());
           BlocProvider.of<FeedBloc>(context).add(FeedLoadEvent(reloadAll: true));
-          Navigator.of(context).pushReplacementNamed('/feed');
+          // Navigator.of(context).pushReplacementNamed('/feed');
         }
         if (state.isFailure) {
           Scaffold.of(context)

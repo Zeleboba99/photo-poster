@@ -1,9 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_bloc.dart';
+import 'package:mobile_apps/authentication_bloc/authentication_state.dart';
 import 'package:mobile_apps/models/post.dart';
 import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_event.dart';
 import 'package:mobile_apps/pages/feed_screen/bloc/feed_screen_state.dart';
 import 'package:mobile_apps/services/post_repository.dart';
 import 'package:mobile_apps/services/user_repository.dart';
+
+import '../../../main.dart';
 
 class FeedBloc extends Bloc<FeedEvent, FeedState> {
   PostRepository _postRepository = PostRepository();
@@ -42,7 +46,8 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
         loadedPostsList.forEach((element) {
           if (element.uid == postUid) {
             element.likeStatus = event.likeStatus;
-            _postRepository.likePost(element.likeStatus!, element, element.authorUid);
+            var currentUserUid = (BlocProvider.of<AuthenticationBloc>(navigatorKey.currentContext!).state as Authenticated).userModel.uid;
+            _postRepository.likePost(element.likeStatus!, element, currentUserUid);
             }
         });
       }
@@ -51,7 +56,6 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
           loadedPosts: loadedPostsList,
           lastCreatedAt: loadedPostsList.last.createdAt,
           loadingInProcess: false);
-      // todo send request to change like status
     } else if (event is FeedAdjustPostsEvent) {
       var currentState = (state as FeedShowPostsState);
       yield FeedShowPostsState(loadedPosts: event.adjustedPosts,

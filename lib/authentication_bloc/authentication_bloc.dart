@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:mobile_apps/models/user.dart';
@@ -65,6 +66,8 @@ class AuthenticationBloc
     BlocProvider.of<FeedBloc>(navigatorKey.currentContext!).add(FeedLoadEvent(reloadAll: true));
 
     yield Authenticated(userModel);
+    Navigator.of(navigatorKey.currentContext!).pushReplacementNamed('/feed');
+
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
